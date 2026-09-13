@@ -11,3 +11,20 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+.carousel-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.carousel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.progress-bar {
+  transform-origin: left;
+  animation: progress 5s linear forwards;
+}
