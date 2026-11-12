@@ -1,539 +1,263 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, type ReactNode } from "react"
 import { motion, useInView } from "framer-motion"
-import { ArrowRight, Phone, MapPin } from "lucide-react"
-import { ProjectCard } from "./components/ProjectCard"
-import { FadeIn } from "./components/FadeIn"
-import { Scene } from "./components/Scene"
+import { ThemeToggle } from "./components/ThemeToggle"
 import { projects } from "./data/projects"
 import { experiences, education } from "./data/experiences"
-import { ThemeToggle } from "./components/ThemeToggle"
-
-const DURATION = 5000
-const SLIDE_MS = 550
-const slides = [projects[projects.length - 1], ...projects, projects[0]]
 
 const SKILLS = [
-  "React", "Next.js", "TypeScript", "Python", "FastAPI",
-  "Supabase", "Stripe", "Claude API", "Docker", "Git",
-  "Vercel", "Kafka", "PostgreSQL", "n8n", "ADK", "Méthodes Agiles",
+  "React", "Next.js", "TypeScript", "Python",
+  "Supabase", "Stripe", "Docker", "Git",
+  "PostgreSQL",
 ]
 
 const ease = [0.16, 1, 0.3, 1] as const
 
-function App() {
-  // ── Carousel state ──
-  const [dotIndex, setDotIndex] = useState(0)
-  const posRef = useRef(1)
-  const stripRef = useRef<HTMLDivElement>(null)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const busy = useRef(false)
-
-  const projectsRef = useRef<HTMLElement>(null)
-
-  // ── Scroll-triggered refs ──
-  const statsRef       = useRef<HTMLDivElement>(null)
-  const experienceRef  = useRef<HTMLDivElement>(null)
-  const educationRef   = useRef<HTMLDivElement>(null)
-  const skillsRef      = useRef<HTMLDivElement>(null)
-  const contactRef     = useRef<HTMLDivElement>(null)
-
-  const statsInView      = useInView(statsRef,      { once: true, margin: "-10% 0px" })
-  const experienceInView = useInView(experienceRef,  { once: true, margin: "-10% 0px" })
-  const educationInView  = useInView(educationRef,   { once: true, margin: "-10% 0px" })
-  const skillsInView     = useInView(skillsRef,      { once: true, margin: "-10% 0px" })
-  const contactInView    = useInView(contactRef,     { once: true, margin: "-10% 0px" })
-
-  // ── Carousel logic (unchanged) ──
-  const setTransform = (index: number, animated = true) => {
-    const el = stripRef.current
-    if (!el) return
-    el.style.transition = animated
-      ? `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
-      : "none"
-    el.style.transform = `translateX(-${(index / slides.length) * 100}%)`
-  }
-
-  const toReal = (i: number) =>
-    i === 0 ? projects.length - 1 : i >= slides.length - 1 ? 0 : i - 1
-
-  const goTo = (index: number) => {
-    if (busy.current) return
-    busy.current = true
-    posRef.current = index
-    setDotIndex(toReal(index))
-    setTransform(index)
-  }
-
-  const handleTransitionEnd = () => {
-    if (posRef.current === slides.length - 1) { posRef.current = 1; setTransform(1, false) }
-    else if (posRef.current === 0) { posRef.current = projects.length; setTransform(projects.length, false) }
-    busy.current = false
-  }
-
-  const startTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    timerRef.current = setInterval(() => goTo(posRef.current + 1), DURATION)
-  }
-
-  const handleNav = (dir: "prev" | "next") => {
-    goTo(dir === "next" ? posRef.current + 1 : posRef.current - 1)
-    startTimer()
-  }
-
-  useEffect(() => {
-    setTransform(1, false)
-    startTimer()
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [])
-
+function Prompt({ cmd }: { cmd: string }) {
   return (
-    <>
-    <Scene />
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ position: "relative", zIndex: 1 }}>
+    <p className="prompt-line">
+      <span className="prompt-user">thomas@portfolio</span>
+      <span className="prompt-sep">:</span>
+      <span className="prompt-path">~</span>
+      <span className="prompt-sep">$ </span>
+      <span>{cmd}</span>
+    </p>
+  )
+}
 
-      {/* ── Background overlays over canvas ── */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="grid-bg" />
-        <div className="noise-overlay" />
-      </div>
+function FadeIn({ children, className = "", delay = 0 }: {
+  children: ReactNode
+  className?: string
+  delay?: number
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: "-8% 0px" })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 10 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay, duration: 0.5, ease }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function App() {
+  return (
+    <div className="min-h-screen">
 
       {/* ── Header ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass-header">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="text-sm font-bold tracking-widest font-mono" style={{ color: "var(--fg-mid)" }}>TB</span>
-          <nav className="flex items-center gap-6 sm:gap-8">
-            <a href="#experience" className="nav-link text-xs tracking-widest uppercase hidden sm:block">
-              Expérience
-            </a>
-            <a href="#projects" className="nav-link text-xs tracking-widest uppercase">
-              Projets
-            </a>
-            <a href="#contact" className="nav-link text-xs tracking-widest uppercase">
-              Contact
-            </a>
+      <header className="term-header">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="term-logo">
+            <span className="prompt-user">thomas</span>
+            <span className="prompt-sep">@</span>
+            <span>portfolio</span>
+            <span className="cursor-blink">▌</span>
+          </div>
+          <nav className="flex items-center gap-5 sm:gap-7">
+            <a href="#experience" className="term-nav-link hidden sm:inline">./experience</a>
+            <a href="#projects" className="term-nav-link">./projects</a>
+            <a href="#contact" className="term-nav-link">./contact</a>
             <ThemeToggle />
           </nav>
         </div>
       </header>
 
-      {/* ════════════════════════════
-          HERO
-      ════════════════════════════ */}
-      <section id="about" className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
-        <div className="text-center max-w-5xl mx-auto">          
+      <main className="max-w-3xl mx-auto px-6">
 
-          {/* Name — clip reveal */}
-          <div className="mb-8">
-            {["Thomas", "Barillé"].map((word, i) => (
-              <div key={word} style={{ overflow: "hidden", lineHeight: 0.95 }}>
-                <motion.span
-                  className="hero-name"
-                  initial={{ y: "105%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ delay: 0.15 + i * 0.08, duration: 0.85, ease }}
-                >
-                  {word}
-                </motion.span>
-              </div>
-            ))}
-          </div>
-
-          {/* Role — no typewriter, clean static */}
-          <motion.p
-            className="text-lg sm:text-xl font-light tracking-wide mb-5"
-            style={{ color: "var(--fg-faint)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            Développeur FullStack · Toulouse
-          </motion.p>
-
-          {/* Description */}
-          <motion.p
-            className="text-sm sm:text-base max-w-md mx-auto mb-14 leading-relaxed"
-            style={{ color: "var(--fg-faint)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-          >
-            De l'idée au produit déployé —{" "}
-            <br className="hidden sm:block" />
-            apps web, pipelines IA, outils sur mesure.
-          </motion.p>
-
-          {/* CTAs */}
+        {/* ════════════════════════════
+            HERO
+        ════════════════════════════ */}
+        <section id="about" className="pt-32 pb-16">
           <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.7 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.6 }}
           >
-            <motion.button
-              className="btn-primary"
-              onClick={() => projectsRef.current?.scrollIntoView({ behavior: "smooth" })}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-            >
-              Voir mes projets
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
-            <motion.a
-              className="btn-secondary"
+            <Prompt cmd="whoami" />
+          </motion.div>
+
+          <motion.div
+            className="mt-6 mb-10"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.7, ease }}
+          >
+            <h1 className="term-name">Thomas Barillé</h1>
+            <p className="term-role">Développeur FullStack · React & Python · Toulouse</p>
+            <p className="term-desc">
+              De l'idée au produit déployé —<br />
+              apps web, pipelines IA, outils sur mesure.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="flex flex-wrap gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            <a href="#projects" className="term-btn">./projets ↓</a>
+            <a
               href="https://github.com/thomasBarille-ab"
               target="_blank"
               rel="noopener noreferrer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.96 }}
+              className="term-link"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-              </svg>
-              GitHub
-            </motion.a>
+              github ↗
+            </a>
           </motion.div>
+        </section>
+
+        {/* ── Stats ── */}
+        <div className="term-stats">
+          <span>3+ ans d'expérience</span>
+          <span className="term-sep">·</span>
+          <span>5+ projets réalisés</span>
+          <span className="term-sep">·</span>
+          <span>Bac+5 RNCP niveau 7</span>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 select-none"
-          style={{ color: "var(--fg-faint)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-        >
-          <span className="text-xs tracking-widest uppercase font-light">Scroll</span>
-          <div className="w-px h-10 scroll-line" />
-        </motion.div>
-      </section>
+        {/* ════════════════════════════
+            EXPERIENCE
+        ════════════════════════════ */}
+        <section id="experience" className="py-16">
+          <Prompt cmd="cat ./experience/*" />
+          <div className="mt-6 space-y-8">
+            {experiences.map((exp, i) => (
+              <FadeIn key={exp.company} delay={i * 0.1}>
+                <div className="term-entry">
+                  <div className="term-entry-header">
+                    <span className="term-company">{exp.company}</span>
+                    <span className="term-badge">{exp.type}</span>
+                    <span className="term-period">{exp.period}</span>
+                  </div>
+                  <div className="term-entry-role">{exp.role} · {exp.location}</div>
 
-      {/* ── Stats bar ── */}
-      <section className="max-w-5xl mx-auto px-6">
-        <div ref={statsRef} className="flex justify-center items-center gap-8 sm:gap-16 py-16">
-          {[
-            { n: "3+",    l: "ans d'expérience" },
-            { n: "5+",    l: "projets réalisés" },
-            { n: "Bac+5", l: "RNCP niveau 7" },
-          ].map((s, i) => (
-            <motion.div
-              key={s.l}
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={statsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1, duration: 0.6, ease }}
-            >
-              <div className="text-3xl sm:text-4xl font-black mb-1 tracking-tight" style={{ color: "var(--fg)" }}>{s.n}</div>
-              <div className="text-xs tracking-wider uppercase" style={{ color: "var(--fg-faint)" }}>{s.l}</div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+                  {exp.subProjects ? (
+                    <div className="mt-3 space-y-2">
+                      {exp.subProjects.map(sp => (
+                        <div key={sp.name} className="term-subproject">
+                          <span className="term-sp-name">{sp.name}</span>
+                          <span className="term-sp-tech">{sp.tech.join(' · ')}</span>
+                          <p className="term-sp-desc">{sp.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      {exp.description && <p className="term-sp-desc mt-2">{exp.description}</p>}
+                      {exp.tech && <p className="term-tech-list">{exp.tech.join(' · ')}</p>}
+                    </>
+                  )}
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
 
-      {/* ════════════════════════════
-          EXPERIENCES
-      ════════════════════════════ */}
-      <section id="experience" className="max-w-5xl mx-auto px-6 py-24">
-        <div className="glass-panel px-8 py-10">
-        <FadeIn className="mb-14">
-          <span className="section-label">Parcours</span>
-          <h2 className="section-title">
-            Expériences <span className="text-accent">professionnelles</span>
-          </h2>
-        </FadeIn>
+        {/* ════════════════════════════
+            PROJECTS
+        ════════════════════════════ */}
+        <section id="projects" className="py-16">
+          <Prompt cmd="ls -la ./projets/" />
+          <div className="mt-6 space-y-1">
+            {projects.map((p, i) => (
+              <FadeIn key={p.title} delay={i * 0.08}>
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="term-project-row"
+                >
+                  <span className="term-proj-name">{p.title}/</span>
+                  <span className="term-proj-tags">{p.tags.join(' · ')}</span>
+                  <span className="term-proj-url">↗ {p.url.replace('https://', '')}</span>
+                </a>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
 
-        <div ref={experienceRef} className="tl-container">
-          <div className="tl-line" />
-          {experiences.map((exp, i) => (
-            <motion.div
-              key={exp.company}
-              className="tl-entry"
-              initial={{ opacity: 0, x: -20 }}
-              animate={experienceInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: i * 0.2, duration: 0.6, ease }}
-            >
-              <motion.span
-                className="tl-dot"
-                initial={{ scale: 0 }}
-                animate={experienceInView ? { scale: 1 } : {}}
-                transition={{ delay: i * 0.2 + 0.1, type: "spring", stiffness: 300, damping: 20 }}
-              />
-
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h3 className="text-lg font-bold text-white">{exp.company}</h3>
-                <span className={exp.type === "Alternance" ? "exp-badge exp-badge-alt" : "exp-badge exp-badge-stage"}>
-                  {exp.type}
-                </span>
-              </div>
-              <p className="text-sm mb-0.5" style={{ color: "var(--fg-low)" }}>{exp.role}</p>
-              <p className="text-xs mb-5" style={{ color: "var(--fg-faint)" }}>{exp.period} · {exp.location}</p>
-
-              {exp.subProjects ? (
-                <div className="space-y-2.5">
-                  {exp.subProjects.map((sp, j) => (
-                    <motion.div
-                      key={sp.name}
-                      className="subproject-card"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={experienceInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ delay: i * 0.2 + 0.3 + j * 0.1, duration: 0.4 }}
-                    >
-                      <p className="text-xs font-semibold tracking-wide uppercase mb-1.5" style={{ color: "var(--fg-mid)" }}>
-                        {sp.name}
-                      </p>
-                      <p className="text-xs leading-relaxed mb-2.5" style={{ color: "var(--fg-low)" }}>
-                        {sp.description}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {sp.tech.map(t => <span key={t} className="tech-micro">{t}</span>)}
-                      </div>
-                    </motion.div>
+        {/* ════════════════════════════
+            EDUCATION
+        ════════════════════════════ */}
+        <section className="py-16">
+          <Prompt cmd="cat ./education/*" />
+          <div className="mt-6 space-y-6">
+            {education.map((edu, i) => (
+              <FadeIn key={edu.school} delay={i * 0.1}>
+                <div className="term-entry">
+                  <div className="term-entry-header">
+                    <span className="term-company">{edu.school}</span>
+                    <span className="term-period">{edu.period}</span>
+                  </div>
+                  <div className="term-entry-role">{edu.field} · {edu.location}</div>
+                  {edu.details?.map(d => (
+                    <p key={d} className="term-sp-desc">// {d}</p>
                   ))}
                 </div>
-              ) : (
-                <>
-                  {exp.description && (
-                    <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--fg-low)" }}>
-                      {exp.description}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-1.5">
-                    {exp.tech?.map(t => <span key={t} className="tech-micro">{t}</span>)}
-                  </div>
-                </>
-              )}
-            </motion.div>
-          ))}
-        </div>
-        </div>
-      </section>
-
-      {/* ════════════════════════════
-          PROJECTS
-      ════════════════════════════ */}
-      <section ref={projectsRef} id="projects" className="max-w-5xl mx-auto px-6 py-24">
-        <div className="glass-panel px-8 py-10">
-        <FadeIn className="mb-14">
-          <span className="section-label">Portfolio</span>
-          <h2 className="section-title">
-            Mes <span className="text-accent">projets</span>
-          </h2>
-        </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <div className="relative">
-            <button onClick={() => handleNav("prev")} aria-label="Précédent"
-              className="carousel-btn absolute -left-6 top-1/2 -translate-y-1/2 z-10">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            <div className="overflow-hidden">
-              <div
-                ref={stripRef}
-                style={{ width: `${slides.length * 100}%` }}
-                className="flex will-change-transform"
-                onTransitionEnd={handleTransitionEnd}
-              >
-                {slides.map((project, i) => (
-                  <div key={i} style={{ width: `${100 / slides.length}%` }}>
-                    <ProjectCard project={project} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button onClick={() => handleNav("next")} aria-label="Suivant"
-              className="carousel-btn absolute -right-6 top-1/2 -translate-y-1/2 z-10">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="mt-5 h-px rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
-            <div key={dotIndex} className="h-full progress-bar"
-              style={{ background: "linear-gradient(to right, #3b82f6, #8b5cf6)" }} />
-          </div>
-
-          <div className="flex justify-center gap-2 mt-5">
-            {projects.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { goTo(i + 1); startTimer() }}
-                aria-label={`Projet ${i + 1}`}
-                className="rounded-full transition-all duration-300"
-                style={i === dotIndex
-                  ? { width: "20px", height: "8px", background: "var(--fg)" }
-                  : { width: "8px", height: "8px", background: "var(--fg-faintest)" }}
-              />
+              </FadeIn>
             ))}
           </div>
-        </FadeIn>
-        </div>
-      </section>
+        </section>
 
-      {/* ════════════════════════════
-          FORMATION
-      ════════════════════════════ */}
-      <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="glass-panel px-8 py-10">
-        <FadeIn className="mb-14">
-          <span className="section-label">Académique</span>
-          <h2 className="section-title">Formation</h2>
-        </FadeIn>
-
-        <div ref={educationRef} className="tl-container">
-          <div className="tl-line" />
-          {education.map((edu, i) => (
-            <motion.div
-              key={edu.school}
-              className="tl-entry"
-              initial={{ opacity: 0, x: -20 }}
-              animate={educationInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: i * 0.15, duration: 0.6, ease }}
-            >
-              <motion.span
-                className="tl-dot tl-dot-edu"
-                initial={{ scale: 0 }}
-                animate={educationInView ? { scale: 1 } : {}}
-                transition={{ delay: i * 0.15 + 0.1, type: "spring", stiffness: 300, damping: 20 }}
-              />
-              <h3 className="text-base font-bold mb-0.5" style={{ color: "var(--fg)" }}>{edu.school}</h3>
-              <p className="text-sm mb-0.5" style={{ color: "var(--fg-low)" }}>{edu.field}</p>
-              <p className="text-xs mb-2" style={{ color: "var(--fg-faint)" }}>{edu.period} · {edu.location}</p>
-              {edu.details?.map(d => (
-                <p key={d} className="text-xs leading-relaxed" style={{ color: "var(--fg-faint)" }}>{d}</p>
-              ))}
-            </motion.div>
-          ))}
-        </div>
-        </div>
-      </section>
-
-      {/* ════════════════════════════
-          SKILLS
-      ════════════════════════════ */}
-      <section className="max-w-5xl mx-auto px-6 py-16">
-        <div className="glass-panel px-8 py-10">
-        <div ref={skillsRef} className="text-center">
+        {/* ════════════════════════════
+            SKILLS
+        ════════════════════════════ */}
+        <section className="py-16">
+          <Prompt cmd="echo $STACK" />
           <FadeIn>
-            <span className="section-label">Stack technique</span>
+            <p className="term-skills mt-4">{SKILLS.join(' · ')}</p>
           </FadeIn>
-          <div className="flex flex-wrap justify-center gap-2.5 mt-6">
-            {SKILLS.map((s, i) => (
-              <motion.span
-                key={s}
-                className="skill-pill"
-                initial={{ opacity: 0, y: 12 }}
-                animate={skillsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: i * 0.04, duration: 0.4, ease: "easeOut" }}
-              >
-                {s}
-              </motion.span>
+          <div className="mt-6 flex gap-5 flex-wrap">
+            {[
+              { lang: "Anglais", level: "B2" },
+              { lang: "Espagnol", level: "B1" },
+            ].map(l => (
+              <span key={l.lang} className="term-lang">
+                {l.lang}
+                <span className="term-lang-badge">{l.level}</span>
+              </span>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="flex justify-center gap-4 mt-10">
-          {[
-            { lang: "Anglais", level: "B2", detail: "avancé" },
-            { lang: "Espagnol", level: "B1", detail: "scolaire" },
-          ].map((l, i) => (
-            <motion.div
-              key={l.lang}
-              className="lang-card"
-              initial={{ opacity: 0, y: 12 }}
-              animate={skillsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: SKILLS.length * 0.04 + i * 0.08, duration: 0.4 }}
-            >
-              <span className="text-sm font-medium" style={{ color: "var(--fg-mid)" }}>{l.lang}</span>
-              <span className="lang-badge">{l.level}</span>
-              <span className="text-xs" style={{ color: "var(--fg-faint)" }}>{l.detail}</span>
-            </motion.div>
-          ))}
-        </div>
-        </div>
-      </section>
+        {/* ════════════════════════════
+            CONTACT
+        ════════════════════════════ */}
+        <section id="contact" className="py-16 pb-28">
+          <Prompt cmd="./contact.sh" />
+          <FadeIn>
+            <div className="mt-6 space-y-0">
+              <a href="mailto:thomasbarille@gmail.com" className="term-contact-row">
+                thomasbarille@gmail.com
+              </a>
+              <div className="term-contact-row">06 81 61 27 49</div>
+              <div className="term-contact-row">Toulouse, France</div>
+            </div>
+            <div className="mt-6 flex gap-6 flex-wrap">
+              <a href="https://www.linkedin.com/in/thomas-barille" target="_blank" rel="noopener noreferrer" className="term-link">
+                linkedin ↗
+              </a>
+              <a href="https://github.com/thomasBarille-ab" target="_blank" rel="noopener noreferrer" className="term-link">
+                github ↗
+              </a>
+            </div>
+          </FadeIn>
+        </section>
 
-      {/* ════════════════════════════
-          CONTACT
-      ════════════════════════════ */}
-      <section id="contact" className="max-w-5xl mx-auto px-6 py-28">
-        <div ref={contactRef}>
-          <span className="section-label">Contact</span>
+      </main>
 
-          {/* Clip-reveal heading */}
-          <div style={{ overflow: "hidden" }}>
-            <motion.h2
-              className="contact-heading"
-              initial={{ y: "100%" }}
-              animate={contactInView ? { y: "0%" } : {}}
-              transition={{ delay: 0.1, duration: 0.85, ease }}
-            >
-              Parlons-en.
-            </motion.h2>
-          </div>
-
-          {/* Email CTA */}
-          <motion.a
-            href="mailto:thomasbarille@gmail.com"
-            className="contact-email-link"
-            initial={{ opacity: 0, y: 20 }}
-            animate={contactInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            whileHover={{ x: 6 }}
-          >
-            thomasbarille@gmail.com
-            <ArrowRight className="w-5 h-5" />
-          </motion.a>
-
-          {/* Secondary links */}
-          <motion.div
-            className="contact-secondary"
-            initial={{ opacity: 0 }}
-            animate={contactInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.65, duration: 0.7 }}
-          >
-            <a href="tel:+33681612749" className="inline-flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5" />
-              06 81 61 27 49
-            </a>
-            <span>·</span>
-            <a href="https://www.linkedin.com/in/thomas-barille" target="_blank" rel="noopener noreferrer"
-               className="inline-flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-              </svg>
-              LinkedIn
-            </a>
-            <span>·</span>
-            <a href="https://github.com/thomasBarille-ab" target="_blank" rel="noopener noreferrer"
-               className="inline-flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-              </svg>
-              GitHub
-            </a>
-            <span>·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5" />
-              Toulouse, France
-            </span>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── Footer ── */}
-      <footer style={{ borderTop: "1px solid var(--border)" }} className="py-8">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <span className="font-mono" style={{ fontSize: "11px", color: "var(--fg-faintest)" }}>
-            © 2026 Thomas Barillé — Développeur FullStack
-          </span>
+      <footer className="term-footer">
+        <div className="max-w-3xl mx-auto px-6">
+          © 2025 Thomas Barillé — Développeur FullStack Freelance
         </div>
       </footer>
     </div>
-    </>
   )
 }
 
