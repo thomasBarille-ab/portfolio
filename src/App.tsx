@@ -6,6 +6,7 @@ import { FadeIn } from "./components/FadeIn"
 import { Scene } from "./components/Scene"
 import { projects } from "./data/projects"
 import { experiences, education } from "./data/experiences"
+import { ThemeToggle } from "./components/ThemeToggle"
 
 const DURATION = 5000
 const SLIDE_MS = 550
@@ -28,7 +29,6 @@ function App() {
   const busy = useRef(false)
 
   const projectsRef = useRef<HTMLElement>(null)
-  const sceneScrollRef = useRef<number>(0)
 
   // ── Scroll-triggered refs ──
   const statsRef       = useRef<HTMLDivElement>(null)
@@ -86,18 +86,9 @@ function App() {
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [])
 
-  useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      sceneScrollRef.current = max > 0 ? window.scrollY / max : 0
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
   return (
     <>
-    <Scene scrollRef={sceneScrollRef} />
+    <Scene />
     <div className="min-h-screen text-white overflow-x-hidden" style={{ position: "relative", zIndex: 1 }}>
 
       {/* ── Background overlays over canvas ── */}
@@ -109,23 +100,18 @@ function App() {
       {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-header">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="text-sm font-bold tracking-widest font-mono" style={{ color: "rgba(255,255,255,0.65)" }}>TB</span>
+          <span className="text-sm font-bold tracking-widest font-mono" style={{ color: "var(--fg-mid)" }}>TB</span>
           <nav className="flex items-center gap-6 sm:gap-8">
-            <a href="#experience" className="text-xs tracking-widest uppercase transition-colors hidden sm:block" style={{ color: "rgba(255,255,255,0.32)", letterSpacing: "0.1em" }}
-               onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-               onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.32)")}>
+            <a href="#experience" className="nav-link text-xs tracking-widest uppercase hidden sm:block">
               Expérience
             </a>
-            <a href="#projects" className="text-xs tracking-widest uppercase transition-colors" style={{ color: "rgba(255,255,255,0.32)", letterSpacing: "0.1em" }}
-               onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-               onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.32)")}>
+            <a href="#projects" className="nav-link text-xs tracking-widest uppercase">
               Projets
             </a>
-            <a href="#contact" className="text-xs tracking-widest uppercase transition-colors" style={{ color: "rgba(255,255,255,0.32)", letterSpacing: "0.1em" }}
-               onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-               onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.32)")}>
+            <a href="#contact" className="nav-link text-xs tracking-widest uppercase">
               Contact
             </a>
+            <ThemeToggle />
           </nav>
         </div>
       </header>
@@ -155,18 +141,18 @@ function App() {
           {/* Role — no typewriter, clean static */}
           <motion.p
             className="text-lg sm:text-xl font-light tracking-wide mb-5"
-            style={{ color: "rgba(255,255,255,0.32)" }}
+            style={{ color: "var(--fg-faint)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            Développeur FullStack · React & Python · Toulouse
+            Développeur FullStack · Toulouse
           </motion.p>
 
           {/* Description */}
           <motion.p
             className="text-sm sm:text-base max-w-md mx-auto mb-14 leading-relaxed"
-            style={{ color: "rgba(255,255,255,0.28)" }}
+            style={{ color: "var(--fg-faint)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.8 }}
@@ -211,16 +197,13 @@ function App() {
         {/* Scroll indicator */}
         <motion.div
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 select-none"
-          style={{ color: "rgba(255,255,255,0.22)" }}
+          style={{ color: "var(--fg-faint)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 1 }}
         >
           <span className="text-xs tracking-widest uppercase font-light">Scroll</span>
-          <div
-            className="w-px h-10 scroll-line"
-            style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.7), transparent)" }}
-          />
+          <div className="w-px h-10 scroll-line" />
         </motion.div>
       </section>
 
@@ -239,8 +222,8 @@ function App() {
               animate={statsInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.1, duration: 0.6, ease }}
             >
-              <div className="text-3xl sm:text-4xl font-black text-white mb-1 tracking-tight">{s.n}</div>
-              <div className="text-xs tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>{s.l}</div>
+              <div className="text-3xl sm:text-4xl font-black mb-1 tracking-tight" style={{ color: "var(--fg)" }}>{s.n}</div>
+              <div className="text-xs tracking-wider uppercase" style={{ color: "var(--fg-faint)" }}>{s.l}</div>
             </motion.div>
           ))}
         </div>
@@ -281,8 +264,8 @@ function App() {
                   {exp.type}
                 </span>
               </div>
-              <p className="text-sm mb-0.5" style={{ color: "rgba(255,255,255,0.52)" }}>{exp.role}</p>
-              <p className="text-xs mb-5" style={{ color: "rgba(255,255,255,0.3)" }}>{exp.period} · {exp.location}</p>
+              <p className="text-sm mb-0.5" style={{ color: "var(--fg-low)" }}>{exp.role}</p>
+              <p className="text-xs mb-5" style={{ color: "var(--fg-faint)" }}>{exp.period} · {exp.location}</p>
 
               {exp.subProjects ? (
                 <div className="space-y-2.5">
@@ -294,10 +277,10 @@ function App() {
                       animate={experienceInView ? { opacity: 1, y: 0 } : {}}
                       transition={{ delay: i * 0.2 + 0.3 + j * 0.1, duration: 0.4 }}
                     >
-                      <p className="text-xs font-semibold tracking-wide uppercase mb-1.5" style={{ color: "rgba(255,255,255,0.62)" }}>
+                      <p className="text-xs font-semibold tracking-wide uppercase mb-1.5" style={{ color: "var(--fg-mid)" }}>
                         {sp.name}
                       </p>
-                      <p className="text-xs leading-relaxed mb-2.5" style={{ color: "rgba(255,255,255,0.38)" }}>
+                      <p className="text-xs leading-relaxed mb-2.5" style={{ color: "var(--fg-low)" }}>
                         {sp.description}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
@@ -309,7 +292,7 @@ function App() {
               ) : (
                 <>
                   {exp.description && (
-                    <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.38)" }}>
+                    <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--fg-low)" }}>
                       {exp.description}
                     </p>
                   )}
@@ -368,7 +351,7 @@ function App() {
             </button>
           </div>
 
-          <div className="mt-5 h-px rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="mt-5 h-px rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
             <div key={dotIndex} className="h-full progress-bar"
               style={{ background: "linear-gradient(to right, #3b82f6, #8b5cf6)" }} />
           </div>
@@ -381,8 +364,8 @@ function App() {
                 aria-label={`Projet ${i + 1}`}
                 className="rounded-full transition-all duration-300"
                 style={i === dotIndex
-                  ? { width: "20px", height: "8px", background: "white" }
-                  : { width: "8px", height: "8px", background: "rgba(255,255,255,0.18)" }}
+                  ? { width: "20px", height: "8px", background: "var(--fg)" }
+                  : { width: "8px", height: "8px", background: "var(--fg-faintest)" }}
               />
             ))}
           </div>
@@ -416,11 +399,11 @@ function App() {
                 animate={educationInView ? { scale: 1 } : {}}
                 transition={{ delay: i * 0.15 + 0.1, type: "spring", stiffness: 300, damping: 20 }}
               />
-              <h3 className="text-base font-bold text-white mb-0.5">{edu.school}</h3>
-              <p className="text-sm mb-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{edu.field}</p>
-              <p className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>{edu.period} · {edu.location}</p>
+              <h3 className="text-base font-bold mb-0.5" style={{ color: "var(--fg)" }}>{edu.school}</h3>
+              <p className="text-sm mb-0.5" style={{ color: "var(--fg-low)" }}>{edu.field}</p>
+              <p className="text-xs mb-2" style={{ color: "var(--fg-faint)" }}>{edu.period} · {edu.location}</p>
               {edu.details?.map(d => (
-                <p key={d} className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.33)" }}>{d}</p>
+                <p key={d} className="text-xs leading-relaxed" style={{ color: "var(--fg-faint)" }}>{d}</p>
               ))}
             </motion.div>
           ))}
@@ -464,9 +447,9 @@ function App() {
               animate={skillsInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: SKILLS.length * 0.04 + i * 0.08, duration: 0.4 }}
             >
-              <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.62)" }}>{l.lang}</span>
+              <span className="text-sm font-medium" style={{ color: "var(--fg-mid)" }}>{l.lang}</span>
               <span className="lang-badge">{l.level}</span>
-              <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{l.detail}</span>
+              <span className="text-xs" style={{ color: "var(--fg-faint)" }}>{l.detail}</span>
             </motion.div>
           ))}
         </div>
@@ -542,9 +525,9 @@ function App() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} className="py-8">
+      <footer style={{ borderTop: "1px solid var(--border)" }} className="py-8">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <span className="font-mono" style={{ fontSize: "11px", color: "rgba(255,255,255,0.14)" }}>
+          <span className="font-mono" style={{ fontSize: "11px", color: "var(--fg-faintest)" }}>
             © 2026 Thomas Barillé — Développeur FullStack
           </span>
         </div>
