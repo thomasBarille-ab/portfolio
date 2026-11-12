@@ -11,7 +11,7 @@ export const projects: Project[] = [
   {
     title: "Creaclip",
     description: "Pipeline IA de génération de clips courts à partir de longues vidéos.",
-    tags: ["Python", "ADK", "React"],
+    tags: ["Next.js", "Supabase", "Stripe"],
     url: "https://creaclip.thomasbarille.com",
     github: "https://github.com/thomasBarille-ab/clipforgesaas",
     gradient: "from-blue-500 to-cyan-600",
@@ -19,7 +19,7 @@ export const projects: Project[] = [
   {
     title: "CEA",
     description: "Projet réalisé au Commissariat à l'Énergie Atomique.",
-    tags: [],
+    tags: ["React", "Loopback", "PostgreSQL"],
     url: "https://ceaportfolio.thomasbarille.com",
     github: "https://github.com/thomasBarille-ab/ceaportfolio",
     gradient: "from-slate-500 to-slate-700",

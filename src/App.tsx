@@ -87,7 +87,7 @@ function App() {
             transition={{ delay: 0.3, duration: 0.7, ease }}
           >
             <h1 className="term-name">Thomas Barillé</h1>
-            <p className="term-role">Développeur FullStack · React & Python · Toulouse</p>
+            <p className="term-role">Développeur FullStack · React · Toulouse</p>
             <p className="term-desc">
               De l'idée au produit déployé —<br />
               apps web, pipelines IA, outils sur mesure.
@@ -115,8 +115,6 @@ function App() {
         {/* ── Stats ── */}
         <div className="term-stats">
           <span>3+ ans d'expérience</span>
-          <span className="term-sep">·</span>
-          <span>5+ projets réalisés</span>
           <span className="term-sep">·</span>
           <span>Bac+5 RNCP niveau 7</span>
         </div>
