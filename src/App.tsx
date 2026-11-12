@@ -173,7 +173,7 @@ function App() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            Développeur FullStack · SaaS Builder · IA
+            Développeur FullStack · React & Python · Toulouse
           </motion.p>
 
           {/* Description */}
@@ -184,9 +184,9 @@ function App() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.8 }}
           >
-            Je construis des produits IA, automatise des processus métier{" "}
+            De l'idée au produit déployé —{" "}
             <br className="hidden sm:block" />
-            et crée des SaaS rapides et bien faits.
+            apps web, pipelines IA, outils sur mesure.
           </motion.p>
 
           {/* CTAs */}
@@ -242,7 +242,7 @@ function App() {
         <div ref={statsRef} className="flex justify-center items-center gap-8 sm:gap-16 py-16">
           {[
             { n: "3+",    l: "ans d'expérience" },
-            { n: "5+",    l: "projets livrés" },
+            { n: "5+",    l: "projets réalisés" },
             { n: "Bac+5", l: "RNCP niveau 7" },
           ].map((s, i) => (
             <motion.div

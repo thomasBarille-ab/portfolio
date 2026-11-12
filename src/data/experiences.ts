@@ -34,7 +34,7 @@ export const experiences: Experience[] = [
       {
         name: "Quick POC",
         description:
-          "Générateur de code et agrégateur de services. Élaboration du cahier des charges, état de l'art et spécification. Définition d'une roadmap et de jalons. Animation de réunions, maquettage, développement front et back.",
+          "Générateur de code et agrégateur de services internes. Spécification, maquettage, développement full-stack.",
         tech: ["React", "Loopback", "Yeoman", "Gitlab", "Kanban"],
       },
       {

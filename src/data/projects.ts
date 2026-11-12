@@ -25,14 +25,6 @@ export const projects: Project[] = [
     gradient: "from-slate-500 to-slate-700",
   },
   {
-    title: "Roast My GitHub",
-    description: "Entre ton pseudo GitHub et reçois un roast sans pitié de ton profil de développeur.",
-    tags: ["Next.js", "Claude API", "Vercel"],
-    url: "https://roast-my-github-snowy.vercel.app/",
-    github: "https://github.com/thomasBarille-ab/roastmygithub",
-    gradient: "from-red-500 to-rose-700",
-  },
-  {
     title: "Sports Predictor",
     description: "Pipeline ML de prédiction des matchs Ligue 1 et NBA. XGBoost + calibration isotonique + dashboard Next.js.",
     tags: ["Python", "XGBoost", "Next.js"],
