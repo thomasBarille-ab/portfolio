@@ -134,20 +134,7 @@ function App() {
           HERO
       ════════════════════════════ */}
       <section id="about" className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
-        <div className="text-center max-w-5xl mx-auto">
-
-          {/* Badge */}
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-10"
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05, duration: 0.5 }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
-              Disponible pour de nouveaux projets
-            </span>
-          </motion.div>
+        <div className="text-center max-w-5xl mx-auto">          
 
           {/* Name — clip reveal */}
           <div className="mb-8">
@@ -558,7 +545,7 @@ function App() {
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} className="py-8">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <span className="font-mono" style={{ fontSize: "11px", color: "rgba(255,255,255,0.14)" }}>
-            © 2025 Thomas Barillé — Développeur FullStack Freelance
+            © 2026 Thomas Barillé — Développeur FullStack
           </span>
         </div>
       </footer>
