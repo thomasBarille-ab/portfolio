@@ -252,7 +252,7 @@ function App() {
 
       <footer className="term-footer">
         <div className="max-w-3xl mx-auto px-6">
-          © 2025 Thomas Barillé — Développeur FullStack Freelance
+          © 2026 Thomas Barillé — Développeur FullStack Freelance
         </div>
       </footer>
     </div>
